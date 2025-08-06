@@ -6,11 +6,11 @@ describe ('Login de usuário', function () {
     cy.task("db:seed"); 
   });
 
-  it("SI-001 Login realizado com cadastro válido", function() {
+  it.only("SI-001 Login realizado com cadastro válido", function() {
     cy.visit(`${baseUrl}/signin`);
-    cy.database("find", "users").then((existingUser) => {
+    cy.database("find", "users").then((existingUser) => {  //yarn db:seed
 
-    cy.get('#username').type(existingUser.username);//Darwin.Rath
+    cy.get('#username').type(existingUser.username);//yarn list:dev:users
     cy.get('#password').type('s3cret');
     cy.get('[data-test="signin-submit"]').click();
 
