@@ -4,7 +4,17 @@ import { User } from "../../../src/models";
 const baseUrl = 'http://localhost:3000'
 
 describe("Cadastro de usuário", function () {
-    
+  before(() => {
+    cy.task("db:seed")
+
+    cy.readFile('data/database-seed.json').then((data) => {
+      const randomIndex = Math.floor(Math.random() * data.users.length)
+      const randomUser = data.users[randomIndex]
+
+      Cypress.env('user', randomUser)
+    });
+  });
+
   it("SU-001 Criar um cadastro válido", function () {
     cy.visit(`${baseUrl}/signup`);
     cy.get('#firstName').type('John');
@@ -111,28 +121,26 @@ describe("Cadastro de usuário", function () {
   });
 
   it("SU-010 Cadastrar um usuário já existente", function () {
+    const user = Cypress.env('user')
+
     cy.visit(`${baseUrl}/signup`);
-    cy.task("db:seed");
     cy.intercept('POST', '/users', {
-    statusCode: 409, 
-    body: { message: 'Username already exists' } 
+      statusCode: 409,
+      body: { message: 'Username already exists' }
     }).as('signupError');
-    cy.database("find", "users").then((existingUser) => {
     cy.get('#firstName').type('John');
     cy.get('#lastName').type('Williams');
-    cy.get('#username').type(existingUser.username);
+    cy.get('#username').type(user.username);
     cy.get('#password').type('JW29');
     cy.get('#confirmPassword').type('JW29');
     cy.get('[data-test="signup-submit"]').click();
     cy.wait('@signupError').its('response.statusCode').should('eq', 409);
   });
 
-    });
-
   it("SU-011 Validar direcionamento para a página de login", function () {
     cy.visit(`${baseUrl}/signup`);
     cy.get('.MuiGrid-root > a').click();
-    cy.url().should('include', '/signin'); 
+    cy.url().should('include', '/signin');
     cy.location('pathname').should('equal', '/signin');
 
   });
