@@ -2,8 +2,9 @@ const baseUrl = 'http://localhost:3000'
 
 describe('Login de usuário', () => {
   before(() => {
+// Comando para popular a base de usuários
     cy.task("db:seed")
-
+//Ler o arquivo com os dados de usuários e selecionar um aleatóriamente
     cy.readFile('data/database-seed.json').then((data) => {
       const randomIndex = Math.floor(Math.random() * data.users.length)
       const randomUser = data.users[randomIndex]
